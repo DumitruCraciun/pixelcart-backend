@@ -1,0 +1,119 @@
+openapi: 3.0.1
+info:
+  title: PixelCart API
+  description: E-commerce REST API for PixelCart
+  version: 1.0.0
+  contact:
+    name: Dumitru Craciun
+    email: hello@pixelcart.demo
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+tags:
+  - name: Auth
+    description: User registration and login
+  - name: Products
+    description: Browse products
+  - name: Cart
+    description: Shopping cart operations
+  - name: Orders
+    description: Order management
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, full_name]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                full_name:
+                  type: string
+      responses:
+        '201':
+          description: User created
+        '400':
+          description: Invalid input or email exists
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+
+  /products:
+    get:
+      tags: [Products]
+      summary: Get all products with filters
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category (electronics, clothing, home, books)
+        - name: min_price
+          in: query
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of products
+
+  /cart:
+    get:
+      tags: [Cart]
+      summary: Get current user's cart
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cart contents
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
