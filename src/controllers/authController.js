@@ -1,3 +1,5 @@
+// backend/src/controllers/authController.js
+
 const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -51,11 +53,11 @@ const login = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
     
-    // Generează JWT
+    // Generează JWT - FIX AICI
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }  // ← Am înlocuit cu '7d' în loc de process.env.JWT_EXPIRES_IN
     );
     
     res.json({
