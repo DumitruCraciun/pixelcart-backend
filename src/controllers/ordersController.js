@@ -139,4 +139,11 @@ const cancelOrder = async (req, res, next) => {
   }
 };
 
-module.exports = { createOrder, getUserOrders, getOrderById, cancelOrder };
+// La sfârșitul fișierului ordersController.js
+module.exports = { 
+  createOrder, 
+  getUserOrders, 
+  getMyOrders: getUserOrders,  // Alias pentru frontend
+  getOrderById, 
+  cancelOrder 
+};
