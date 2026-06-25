@@ -67,20 +67,35 @@ const createOrder = async (req, res, next) => {
 const getUserOrders = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    
+    console.log('📋 Fetching orders for user:', userId);
+
     const orders = await pool.query(
       `SELECT o.*, 
-        (SELECT json_agg(json_build_object('product_id', oi.product_id, 'quantity', oi.quantity, 'unit_price', oi.unit_price))
-         FROM order_items oi WHERE oi.order_id = o.id) as items
+        (SELECT json_agg(json_build_object(
+          'product_id', oi.product_id, 
+          'quantity', oi.quantity, 
+          'unit_price', oi.unit_price,
+          'product_name', p.name
+        ))
+         FROM order_items oi
+         JOIN products p ON oi.product_id = p.id
+         WHERE oi.order_id = o.id) as items
        FROM orders o
        WHERE o.user_id = $1
        ORDER BY o.created_at DESC`,
       [userId]
     );
-    
+
+    console.log('📋 Orders found:', orders.rows.length);
     res.json({ success: true, orders: orders.rows });
   } catch (error) {
-    next(error);
+    console.error('❌ Error in getUserOrders:', error);
+    console.error('❌ Error stack:', error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching orders',
+      error: error.message 
+    });
   }
 };
 
