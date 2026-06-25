@@ -1,3 +1,5 @@
+// backend/src/routes/cart.js
+
 const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const { getCart, addToCart, updateCartItem, removeFromCart, clearCart } = require('../controllers/cartController');

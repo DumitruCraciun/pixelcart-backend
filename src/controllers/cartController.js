@@ -1,3 +1,5 @@
+// backend/src/controllers/cartController.js
+
 const pool = require('../config/database');
 
 const getCart = async (req, res, next) => {

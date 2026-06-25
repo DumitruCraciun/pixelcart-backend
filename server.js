@@ -1,3 +1,5 @@
+// backend/server.js
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -10,20 +12,27 @@ const authRoutes = require('./src/routes/auth');
 const productsRoutes = require('./src/routes/products');
 const cartRoutes = require('./src/routes/cart');
 const ordersRoutes = require('./src/routes/orders');
+const paymentRoutes = require('./src/routes/payment');
+const paymentController = require('./src/controllers/paymentController'); 
 const errorHandler = require('./src/middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware CORS
 app.use(cors());
+
+// ⚠️ Webhook - înainte de express.json()
+app.post('/api/webhook', express.raw({ type: 'application/json' }), paymentController.handleWebhook);
+
+// Middleware JSON - după webhook
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minute
-  max: 100 // 100 requests per window
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use('/api/', limiter);
 
@@ -36,6 +45,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
